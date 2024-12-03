@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:terracota/screens/ajuda_screen.dart';
+import 'package:terracota/screens/cadastro_screen.dart';
+import 'package:terracota/screens/notificacoes_screen.dart';
+import 'package:terracota/screens/pagamentos_screen.dart';
+import 'package:terracota/screens/perfil_screen.dart';
+import 'package:terracota/screens/seguranca_screen.dart';
+import 'package:terracota/screens/settings_screen.dart';
 import 'screens/splash_screen.dart';  // Importa a Splash Screen
 import 'screens/login_screen.dart';   // Importa a Login Screen
 import 'screens/home_screen.dart';    // Importa a Home Screen
@@ -18,7 +25,14 @@ class MainApp extends StatelessWidget {
       routes: {
         '/splash': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
-        '/home': (context) => const HomeScreen(),
+        '/cadastro': (context) => const CadastroScreen(),
+        '/home': (context) => HomeScreen(),
+        '/settings': (context) => const SettingsScreen(),
+        '/perfil': (context) => const PerfilScreen(),
+        '/pagamentos': (context) => const PagamentosScreen(),
+        '/notificacoes': (context) => const NotificacoesScreen(),
+        '/seguranca': (context) => const SegurancaScreen(),
+        '/ajuda': (context) => const AjudaScreen(),
       },
     );
   }

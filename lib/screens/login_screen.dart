@@ -24,6 +24,7 @@ Widget build(BuildContext context) {
               child: Column(
                 mainAxisSize: MainAxisSize.min, // Faz a coluna ocupar o mínimo possível de espaço
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   // Imagem sobreposta (logo)
                   Image.asset(
@@ -81,6 +82,27 @@ Widget build(BuildContext context) {
                         borderRadius: BorderRadius.circular(12), // Bordas arredondadas
                       ),
                     ),
+                  ),
+                  
+                  // Opção de redirecionamento para a tela de cadastro
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Não tem conta? '),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacementNamed(context, '/cadastro');  // Navega para a tela de cadastro
+                          print('Redirecionando para o cadastro');
+                        },
+                        child: Text(
+                          'Cadastre-se',
+                          style: TextStyle(
+                            color: Color(0xFF802600), // Altere a cor para o desejado
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),  
+                    ],
                   ),
                 ],
               ),
