@@ -1,237 +1,236 @@
 import 'package:flutter/material.dart';
-import '../utils/auth_service.dart';  // Função para limpar o login
+import 'package:provider/provider.dart';
+import 'package:terracota/utils/card_provider.dart';
+import 'package:terracota/utils/product.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
   // Lista de produtos de exemplo
   final List<Product> products = [
-    Product(
-      imageUrl: 'assets/images/p1.png',
-      name: 'Vasos de cerâmica',
-      price: 160.00,
-    ),
-    Product(
-      imageUrl: 'assets/images/p2.png',
-      name: 'Panela de barro',
-      price: 145.00,
-    ),
-    Product(
-      imageUrl: 'assets/images/p3.png',
-      name: 'Estatueta de terracota',
-      price: 350.00,
-    ),
-    Product(
-      imageUrl: 'assets/images/p4.png',
-      name: 'Caldeirão de barro',
-      price: 160.00,
-    ),
-    Product(
-      imageUrl: 'assets/images/p5.png',
-      name: 'Potes de barro',
-      price: 145.00,
-    ),
-    Product(
-      imageUrl: 'assets/images/p6.png',
-      name: 'Tigelas de cerâmica',
-      price: 145.00,
-    ),
-    Product(
-      imageUrl: 'assets/images/p7.png',
-      name: 'Leão de barro',
-      price: 300.00,
-    ),
-    Product(
-      imageUrl: 'assets/images/p8.png',
-      name: 'Cervos de cerâmica',
-      price: 500.00,
-    ),
-    Product(
-      imageUrl: 'assets/images/p9.png',
-      name: 'São Francisco',
-      price: 250.00,
-    ),
-    Product(
-      imageUrl: 'assets/images/p10.png',
-      name: 'Jarra de cerâmica',
-      price: 150.00,
-    ),
-    Product(
-      imageUrl: 'assets/images/p11.png',
-      name: 'Cisnes de cerâmica',
-      price: 200.00,
-    ),
-    Product(
-      imageUrl: 'assets/images/p12.png',
-      name: 'Coelho de barro',
-      price: 130.00,
-    ),
+    Product(imageUrl: 'assets/images/p1.png', name: 'Vasos de cerâmica', price: 160.00),
+    Product(imageUrl: 'assets/images/p2.png', name: 'Panela de barro', price: 145.00),
+    Product(imageUrl: 'assets/images/p3.png', name: 'Estatueta de terracota', price: 350.00),
+    Product(imageUrl: 'assets/images/p4.png', name: 'Caldeirão de barro', price: 160.00),
+    Product(imageUrl: 'assets/images/p5.png', name: 'Potes de barro', price: 145.00),
+    Product(imageUrl: 'assets/images/p6.png', name: 'Tigelas de cerâmica', price: 145.00),
+    Product(imageUrl: 'assets/images/p7.png', name: 'Leão de barro', price: 300.00),
+    Product(imageUrl: 'assets/images/p8.png', name: 'Cervos de cerâmica', price: 500.00),
+    Product(imageUrl: 'assets/images/p9.png', name: 'São Francisco', price: 250.00),
+    Product(imageUrl: 'assets/images/p10.png', name: 'Jarra de cerâmica', price: 150.00),
+    Product(imageUrl: 'assets/images/p11.png', name: 'Cisnes de cerâmica', price: 200.00),
+    Product(imageUrl: 'assets/images/p12.png', name: 'Coelho de barro', price: 130.00),
   ];
+
+  // Função para mostrar o diálogo de quantidade do produto
+  void _showQuantityDialog(BuildContext context, Product product) {
+  int quantity = 1;  // Quantidade inicial do produto
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Selecionar Quantidade'),
+        content: StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Exibir a imagem do produto
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    product.imageUrl,
+                    height: 100,
+                    width: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 10),
+                // Nome e preço do produto
+                Text(
+                  product.name,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  'R\$ ${product.price.toStringAsFixed(2)}',
+                  style: TextStyle(fontSize: 14, color: Colors.black),
+                ),
+                SizedBox(height: 20),
+                // Controle de quantidade
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.remove),
+                      onPressed: () {
+                        if (quantity > 1) {
+                          setState(() {
+                            quantity--;
+                          });
+                        }
+                      },
+                    ),
+                    Text(quantity.toString()),
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () {
+                        setState(() {
+                          quantity++;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Adicionar o produto ao carrinho
+              final cartProvider = Provider.of<CartProvider>(context, listen: false);
+              cartProvider.addItem(product, quantity);
+
+              // Fechar o diálogo
+              Navigator.pop(context);
+            },
+            child: Text('Adicionar ao Carrinho'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);  // Fechar o diálogo
+            },
+            child: Text('Cancelar'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          // SliverAppBar com cabeçalho encolhível
           SliverAppBar(
-            expandedHeight: 230.0, // altura inicial do header
-            collapsedHeight: 60.0, 
-            floating: false, // não permite que o AppBar fique flutuando
-            pinned: true, // mantém o cabeçalho no topo quando encolher
-            backgroundColor: Color(0xFF802600), // cor de fundo do header
-            elevation: 0, // Remover a sombra
+            expandedHeight: 180.0,
+            floating: true,
+            pinned: true,
+            backgroundColor: Color(0xFF802600),
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.settings, color: Colors.white),
+              onPressed: () {
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
+            title: Center(
+              child: Container(
+                child: Image.asset(
+                  'assets/images/logomarca_clara.png',
+                  height: 55,
+                ),
+              ),
+            ),
+            actions: [
+              Padding(
+                padding: EdgeInsets.only(right: 10),
+                child: Container(
+                  child: IconButton(
+                    icon: Icon(Icons.shopping_cart, color: Colors.white),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/cart');
+                    },
+                  ),
+                ),
+              ),
+            ],
             flexibleSpace: LayoutBuilder(
               builder: (context, constraints) {
-                bool isCollapsed = constraints.maxHeight < 220;
+                bool isCollapsed = constraints.maxHeight < 170;
 
                 return FlexibleSpaceBar(
                   title: isCollapsed
-                      ? Container() // Não mostra título quando encolhido
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // Ícones de menu e carrinho no topo
-                            Padding(
-                              padding: const EdgeInsets.only(top: 50, left: 16, right: 16),  // Ajuste no padding
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.settings, color: Colors.white),
-                                    onPressed: () {
-                                      // Navegar até a tela de configurações
-                                      Navigator.pushNamed(context, '/settings');
-                                    },
-                                  ),
-                                  // Logomarca no centro
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                                    child: Image.asset(
-                                      'assets/images/logomarca_clara.png', // Caminho para sua logomarca
-                                      height: 35, // Tamanho da logomarca quando o cabeçalho está expandido
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.shopping_cart, color: Colors.white),
-                                    onPressed: () {
-                                      // Aqui vai o código para navegar para a tela de carrinho
-                                      Navigator.pushNamed(context, '/cart');
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text(
-                              'Explore nossa coleção de artesanato!',
-                              style: TextStyle(fontSize: 14, color: Colors.white),
-                            ),
-                            SizedBox(height: 12),
-                            // Barra de pesquisa (só aparece quando expandido)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: Container(
-                                width: 250,
-                                height: 45,
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    prefixIcon: Icon(Icons.search),
-                                    hintText: 'Buscar produtos...',
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                  ? Container() // Quando colapsado, não mostrar título
+                  : Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Texto informativo (se necessário)
+                        const Padding(
+                          padding: EdgeInsets.only(right: 40.0, top: 90.0),
+                          child: Text( 
+                            'Explore nossa coleção de artesanato!',
+                            style: TextStyle(fontSize: 14, color: Colors.white),
+                          ),
                         ),
-                  background: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      if (isCollapsed) ...[
-                        // Barra de pesquisa e ícones de menu e carrinho (enquanto encolhido)
+                        SizedBox(height: 12),
+                        // Campo de pesquisa
                         Padding(
-                          padding: const EdgeInsets.only(top: 48), // Ajuste no padding
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.settings, color: Colors.white),
-                                onPressed: () {
-                                  // Navegar até a tela de configurações
-                                  Navigator.pushNamed(context, '/settings');
-                                },
-                              ),
-                              // Barra de pesquisa (aparece quando o cabeçalho encolhe)
-                              Container(
-                                width: 300,
-                                height: 45,
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    prefixIcon: Icon(Icons.search),
-                                    hintText: 'Buscar produtos...',
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                  ),
+                          padding: const EdgeInsets.only(right: 40.0),
+                          child: Container(
+                            width: 220,
+                            height: 35,
+                            child: TextField(
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.only(top: 5),
+                                prefixIcon: Icon(Icons.search),
+                                hintText: 'Buscar produtos...',
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide.none,
                                 ),
                               ),
-                              IconButton(
-                                icon: Icon(Icons.shopping_cart, color: Colors.white),
-                                onPressed: () {
-                                  // NAvegar até a tela de carrinho
-                                  Navigator.pushNamed(context, '/cart');
-                                },
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ],
-                    ],
+                    ),
                   ),
+                  
                 );
               },
             ),
           ),
 
-          // Lista de produtos com SliverGrid para exibir 3 produtos por linha
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.only(right: 180.0,left: 32.0, top: 10.0),
+              padding: const EdgeInsets.only(right: 180.0, left: 32.0, top: 10.0),
               child: Text(
                 'Mais Vendidos',
                 style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold, color: Color(0xff802600)),
               ),
             ),
           ),
-
-          // Grid de produtos (adaptável conforme o tamanho da tela)
           SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),  // Adiciona padding nas bordas do grid
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             sliver: SliverGrid(
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
                   final product = products[index];
-                  return Padding(  // Padding para os produtos não ficarem colados nas bordas
+                  return Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: ProductCard(product: product),
+                    child: GestureDetector(
+                      onTap: () => _showQuantityDialog(context, product), // Ao clicar, abrir o diálogo
+                      child: ProductCard(product: product),
+                    ),
                   );
                 },
                 childCount: products.length,
               ),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: (MediaQuery.of(context).size.width / 200).floor(), // Ajusta dinamicamente o número de colunas
+                crossAxisCount: (MediaQuery.of(context).size.width / 200).floor(),
                 crossAxisSpacing: 14.0,
                 mainAxisSpacing: 14.0,
-                childAspectRatio: 0.75, // Ajuste para que os cards fiquem mais quadrados
+                childAspectRatio: 0.75,
               ),
             ),
           ),
@@ -239,14 +238,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-class Product {
-  final String imageUrl;
-  final String name;
-  final double price;
-
-  Product({required this.imageUrl, required this.name, required this.price});
 }
 
 class ProductCard extends StatelessWidget {
@@ -264,7 +255,6 @@ class ProductCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Imagem do produto
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: Image.asset(
@@ -279,13 +269,11 @@ class ProductCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Nome do produto
                 Text(
                   product.name,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 3),
-                // Preço do produto
                 Text(
                   'R\$ ${product.price.toStringAsFixed(2)}',
                   style: TextStyle(fontSize: 14, color: Color(0xff000000)),
