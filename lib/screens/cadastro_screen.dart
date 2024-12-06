@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import '../utils/auth_service.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
 
 class CadastroScreen extends StatefulWidget {
   const CadastroScreen({super.key});
@@ -71,9 +71,55 @@ class _CadastroScreenState extends State<CadastroScreen> {
     return true;
   }
 
-  // Função para exibir mensagem de erro
+  // Função para exibir a mensagem de erro
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  // Função para salvar os dados no Parse
+  Future<void> _salvarCadastro() async {
+    if (!_validarCampos()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Criar o objeto ParseUser para o cadastro
+      final parseUser = ParseUser.createUser(
+        _emailController.text.trim(),
+        _senhaController.text,
+      )
+        ..set('nome', _nomeController.text)
+        ..set('cpf', _cpfController.text)
+        ..set('contato', _contatoController.text)
+        ..set('tipo', _tipoSelecionado)
+        ..set('email', _emailController.text);
+
+      // Salvar o objeto no Parse
+      final response = await parseUser.signUp();
+
+      if (response.success) {
+        // Cadastro bem-sucedido
+        Navigator.pushReplacementNamed(context, '/home');
+        print('Cadastro realizado com sucesso!');
+      } else {
+        // Exibe erro se houver falha ao salvar
+        _showSnackBar('Erro ao realizar o cadastro. Tente novamente.');
+        print('Erro: ${response.error?.message}');
+        if (response.error?.message != null) {
+          _showSnackBar('Erro: ${response.error?.message}');
+        }
+      }
+    } catch (e) {
+      // Exibe qualquer erro que aconteça durante o cadastro
+      print('Erro ao salvar cadastro: $e');
+      _showSnackBar('Ocorreu um erro inesperado. Tente novamente.');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -98,79 +144,48 @@ class _CadastroScreenState extends State<CadastroScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,  // Alinha as descrições à esquerda
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    // Imagem sobreposta (logo) centralizada
-                    Center(  // Adicionando o widget Center para centralizar a logomarca
+                    // Logomarca
+                    Center(  
                       child: Image.asset(
                         'assets/images/logomarca.png',
                         width: 250,
                         height: 250,
                       ),
                     ),
-                    SizedBox(height: 20),  // Reduzindo o espaço após a logomarca
+                    const SizedBox(height: 20),  
 
-                    // Descrição do Campo de Nome
-                    Text(
-                      'Informe seu nome completo',
-                      style: TextStyle(
-                        fontSize: 14,  // Texto menor
-                        fontWeight: FontWeight.w400,  // Peso de fonte mais fino
-                        color: Colors.black54,  // Cor mais suave
-                      ),
-                      textAlign: TextAlign.start,  // Alinhado à esquerda
-                    ),
-                    SizedBox(height: 8),
-                    // Campo de Nome
-                    _buildTextField(
+                    // Descrição e Campo Nome
+                    _buildLabelAndField(
+                      label: 'Informe seu nome completo',
                       controller: _nomeController,
                       hintText: 'Nome',
                       accessibilityLabel: 'Nome completo',
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                    // Descrição do Campo de Email
-                    Text(
-                      'Informe seu endereço de e-mail',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black54,
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(height: 8),
-                    // Campo de Email
-                    _buildTextField(
+                    // Descrição e Campo E-mail
+                    _buildLabelAndField(
+                      label: 'Informe seu e-mail',
                       controller: _emailController,
-                      hintText: 'Email',
+                      hintText: 'E-mail',
                       keyboardType: TextInputType.emailAddress,
-                      accessibilityLabel: 'Endereço de email',
+                      accessibilityLabel: 'Endereço de e-mail',
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 30),
 
-                    // Descrição do Campo de Tipo (Dropdown)
-                    Text(
-                      'Selecione o tipo de conta',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black54,
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(height: 8),
-                    // Campo de Tipo (Dropdown)
+                    // Campo Tipo (Dropdown)
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey),
+                        border: Border.all(color: Color(0xFF802600)),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: DropdownButton<String>(
                           value: _tipoSelecionado,
                           isExpanded: true,
-                          icon: Icon(Icons.arrow_drop_down),
+                          icon: const Icon(Icons.arrow_drop_down),
                           onChanged: (String? newValue) {
                             setState(() {
                               _tipoSelecionado = newValue!;
@@ -186,134 +201,89 @@ class _CadastroScreenState extends State<CadastroScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                    // Descrição do Campo de CPF
-                    Text(
-                      'Informe seu CPF',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black54,
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(height: 8),
-                    // Campo de CPF com máscara
-                    _buildTextField(
+                    // Descrição e Campo CPF
+                    _buildLabelAndField(
+                      label: 'Informe seu CPF',
                       controller: _cpfController,
                       hintText: 'CPF',
                       keyboardType: TextInputType.number,
-                      inputFormatters: [_cpfFormatter],  // Aplicando a máscara
-                      accessibilityLabel: 'Número do CPF',
+                      inputFormatters: [_cpfFormatter],
+                      accessibilityLabel: 'Número de CPF',
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                    // Descrição do Campo de Contato
-                    Text(
-                      'Informe seu número de telefone',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black54,
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(height: 8),
-                    // Campo de Contato com máscara
-                    _buildTextField(
+                    // Descrição e Campo Contato
+                    _buildLabelAndField(
+                      label: 'Informe seu número de telefone',
                       controller: _contatoController,
-                      hintText: 'Contato',
-                      keyboardType: TextInputType.phone,
-                      inputFormatters: [_contatoFormatter],  // Aplicando a máscara para telefone
-                      accessibilityLabel: 'Número de contato',
+                      hintText: 'Telefone',
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [_contatoFormatter],
+                      accessibilityLabel: 'Número de telefone',
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                    // Descrição do Campo de Senha
-                    Text(
-                      'Crie uma senha para sua conta',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black54,
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(height: 8),
-                    // Campo de Senha
-                    _buildTextField(
+                    // Descrição e Campo Senha
+                    _buildLabelAndField(
+                      label: 'Escolha uma senha',
                       controller: _senhaController,
                       hintText: 'Senha',
                       obscureText: true,
                       accessibilityLabel: 'Senha',
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                    // Descrição do Campo de Confirmação de Senha
-                    Text(
-                      'Confirme sua senha',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black54,
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-                    SizedBox(height: 8),
-                    // Campo de Confirmação de Senha
-                    _buildTextField(
+                    // Descrição e Campo Confirmar Senha
+                    _buildLabelAndField(
+                      label: 'Confirme sua senha',
                       controller: _confirmarSenhaController,
                       hintText: 'Confirmar Senha',
                       obscureText: true,
                       accessibilityLabel: 'Confirmar senha',
                     ),
-                    SizedBox(height: 30),
+                    const SizedBox(height: 30),
 
-                    // Botão de cadastro
-                    ElevatedButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () async {
-                              if (!_validarCampos()) return;
+                    // Botão de Cadastro
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: _salvarCadastro,
+                              child: const Text(
+                                'Cadastrar',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF802600)
+                                ),
+                              ),
+                            ),
+                          ),
 
-                              setState(() {
-                                _isLoading = true;
-                              });
+                    const SizedBox(height: 20),
 
-                              await saveLoginStatus(true);
-                              Navigator.pushReplacementNamed(context, '/home');
-                              print('Cadastro realizado');
-
-                              setState(() {
-                                _isLoading = false;
-                              });
+                    // Redirecionamento para a tela de login
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('Já tem uma conta?'),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushReplacementNamed(context, '/login');
                             },
-                      child: _isLoading
-                          ? CircularProgressIndicator(color: Colors.white)
-                          : Text('Cadastrar'),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                            child: 
+                              const Text(
+                                'Login',
+                                style: TextStyle(color: Color(0xFF802600)),
+                              ),
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 20),
-
-                    // Opção de redirecionamento para o login
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('Já tem uma conta?'),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/login');
-                            print('Redirecionando para o login');
-                          },
-                          child: Text('Login'),
-                        ),
-                      ],
                     ),
                   ],
                 ),
@@ -325,35 +295,49 @@ class _CadastroScreenState extends State<CadastroScreen> {
     );
   }
 
-  // Função para construir os campos de texto com acessibilidade
-  Widget _buildTextField({
+  // Função reutilizável para criar o label e o campo de texto
+  Widget _buildLabelAndField({
+    required String label,
     required TextEditingController controller,
     required String hintText,
-    TextInputType? keyboardType,
+    String accessibilityLabel = '',
     bool obscureText = false,
-    required String accessibilityLabel,
+    TextInputType keyboardType = TextInputType.text,
     List<TextInputFormatter>? inputFormatters,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey),
-      ),
-      child: Semantics(
-        label: accessibilityLabel,  // Usando o Semantics para a acessibilidade
-        child: TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          obscureText: obscureText,
-          inputFormatters: inputFormatters,  // Permitindo formatação
-          decoration: InputDecoration(
-            hintText: hintText,
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.all(16),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Label explicativo
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,  // Texto menor
+            fontWeight: FontWeight.w400,  // Peso de fonte mais fino
+            color: Colors.black54,  // Cor mais suave
           ),
         ),
-      ),
+        const SizedBox(height: 8),
+        // Campo de texto
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Color(0xFF802600)),
+          ),
+          child: TextField(
+            controller: controller,
+            obscureText: obscureText,
+            keyboardType: keyboardType,
+            inputFormatters: inputFormatters,
+            decoration: InputDecoration(
+              hintText: hintText,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

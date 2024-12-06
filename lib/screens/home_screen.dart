@@ -118,7 +118,7 @@ class HomeScreen extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 180.0,
+            expandedHeight: 170.0,
             floating: true,
             pinned: true,
             backgroundColor: Color(0xFF802600),
@@ -152,7 +152,7 @@ class HomeScreen extends StatelessWidget {
             ],
             flexibleSpace: LayoutBuilder(
               builder: (context, constraints) {
-                bool isCollapsed = constraints.maxHeight < 170;
+                bool isCollapsed = constraints.maxHeight < 168;
 
                 return FlexibleSpaceBar(
                   title: isCollapsed
@@ -164,13 +164,13 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         // Texto informativo (se necessário)
                         const Padding(
-                          padding: EdgeInsets.only(right: 40.0, top: 90.0),
+                          padding: EdgeInsets.only(right: 40.0, top: 85.0),
                           child: Text( 
                             'Explore nossa coleção de artesanato!',
                             style: TextStyle(fontSize: 14, color: Colors.white),
                           ),
                         ),
-                        SizedBox(height: 12),
+                        SizedBox(height: 10),
                         // Campo de pesquisa
                         Padding(
                           padding: const EdgeInsets.only(right: 40.0),

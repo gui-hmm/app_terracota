@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../utils/auth_service.dart';  // Função para salvar o login
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';  // Importação para usar o Parse SDK
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -41,6 +41,38 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  // Função para autenticar o usuário
+  Future<void> _login() async {
+    if (!_validarCampos()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Tentar autenticar no Parse
+    try {
+      final user = ParseUser(_emailController.text, _senhaController.text, null);
+      final response = await user.login();
+
+      if (response.success) {
+        // Se o login for bem-sucedido
+        Navigator.pushReplacementNamed(context, '/home');
+        print('Login realizado com sucesso!');
+      } else {
+        // Caso haja erro no login
+        _showSnackBar('E-mail ou senha incorretos.');
+        print('Erro no login: ${response.error!.message}');
+      }
+    } catch (e) {
+      _showSnackBar('Erro ao tentar fazer o login. Tente novamente.');
+      print('Erro: $e');
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,8 +81,8 @@ class _LoginScreenState extends State<LoginScreen> {
           // Imagem de fundo
           Positioned.fill(
             child: Image.asset(
-              'assets/images/Bemvindo.png', // Caminho da imagem de fundo
-              fit: BoxFit.cover, // A imagem irá cobrir toda a tela
+              'assets/images/Bemvindo.png',
+              fit: BoxFit.cover,
             ),
           ),
           // Conteúdo centralizado
@@ -66,22 +98,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Imagem sobreposta (logo)
                     Center(
                       child: Image.asset(
-                        'assets/images/logomarca.png', // Caminho da imagem sobreposta
-                        width: 250, // Ajuste o tamanho conforme necessário
+                        'assets/images/logomarca.png',
+                        width: 250,
                         height: 250,
                       ),
                     ),
-                    SizedBox(height: 20),  // Espaço entre a logomarca e o formulário
+                    SizedBox(height: 20),
 
                     // Descrição do Campo de Email
                     Text(
                       'Informe seu endereço de e-mail',
                       style: TextStyle(
-                        fontSize: 14,  // Texto menor
-                        fontWeight: FontWeight.w400,  // Peso de fonte mais fino
-                        color: Colors.black54,  // Cor mais suave
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black54,
                       ),
-                      textAlign: TextAlign.start,  // Alinhado à esquerda
                     ),
                     SizedBox(height: 8),
                     // Campo de Email
@@ -89,9 +120,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _emailController,
                       hintText: 'Email',
                       keyboardType: TextInputType.emailAddress,
-                      accessibilityLabel: 'Endereço de email',
                     ),
-                    SizedBox(height: 20),  // Espaço entre os campos
+                    SizedBox(height: 20),
 
                     // Descrição do Campo de Senha
                     Text(
@@ -101,7 +131,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontWeight: FontWeight.w400,
                         color: Colors.black54,
                       ),
-                      textAlign: TextAlign.start,
                     ),
                     SizedBox(height: 8),
                     // Campo de Senha
@@ -109,36 +138,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _senhaController,
                       hintText: 'Senha',
                       obscureText: true,
-                      accessibilityLabel: 'Senha',
                     ),
-                    SizedBox(height: 30),  // Espaço entre os campos e o botão
+                    SizedBox(height: 30),
 
                     // Botão de login
                     ElevatedButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () async {
-                              if (!_validarCampos()) return;
-
-                              setState(() {
-                                _isLoading = true;
-                              });
-
-                              await saveLoginStatus(true);  // Salva o status de login
-                              Navigator.pushReplacementNamed(context, '/home');  // Vai para a tela principal
-                              print('Login pressionado');
-
-                              setState(() {
-                                _isLoading = false;
-                              });
-                            },
+                      onPressed: _isLoading ? null : _login,  // Chama a função de login
                       child: _isLoading
                           ? CircularProgressIndicator(color: Colors.white)
-                          : Text('Entrar'),
+                          : Text(
+                            'Entrar',
+                            style: TextStyle(
+                              color: Color(0xFF802600),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
                       style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 50),  // Largura completa
+                        minimumSize: Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),  // Bordas arredondadas
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                     ),
@@ -150,13 +169,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         Text('Não tem conta? '),
                         TextButton(
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/cadastro');  // Navega para a tela de cadastro
-                            print('Redirecionando para o cadastro');
+                            Navigator.pushReplacementNamed(context, '/cadastro');
                           },
                           child: Text(
                             'Cadastre-se',
                             style: TextStyle(
-                              color: Color(0xFF802600),  // Altere a cor para o desejado
+                              color: Color(0xFF802600),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -173,13 +191,12 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Função para construir os campos de texto com acessibilidade
+  // Função para construir os campos de texto
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
     TextInputType? keyboardType,
     bool obscureText = false,
-    required String accessibilityLabel,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -188,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
         border: Border.all(color: Colors.grey),
       ),
       child: Semantics(
-        label: accessibilityLabel,  // Usando o Semantics para a acessibilidade
+        label: hintText,
         child: TextField(
           controller: controller,
           keyboardType: keyboardType,

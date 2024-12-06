@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // Importar o provider
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:terracota/screens/ajuda_screen.dart';
 import 'package:terracota/screens/cadastro_screen.dart';
 import 'package:terracota/screens/cart_screen.dart';
@@ -9,14 +11,25 @@ import 'package:terracota/screens/perfil_screen.dart';
 import 'package:terracota/screens/seguranca_screen.dart';
 import 'package:terracota/screens/settings_screen.dart';
 import 'package:terracota/utils/card_provider.dart';
-import 'screens/splash_screen.dart';  // Importa a Splash Screen
-import 'screens/login_screen.dart';   // Importa a Login Screen
-import 'screens/home_screen.dart';    // Importa a Home Screen
+import 'screens/splash_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/home_screen.dart';
 
-void main() {
+void main() async {
+  // Carregar as variáveis de ambiente
+  await dotenv.load();
+
+  // Inicializar o Parse com as variáveis do .env
+  await Parse().initialize(
+    dotenv.env['PARSE_APP_ID']!,
+    dotenv.env['PARSE_SERVER_URL']!,
+    clientKey: dotenv.env['PARSE_CLIENT_KEY']!,
+    debug: true,
+  );
+
   runApp(
     ChangeNotifierProvider(
-      create: (context) => CartProvider(), // Provedor para gerenciar o carrinho
+      create: (context) => CartProvider(),
       child: const MainApp(),
     ),
   );
@@ -29,7 +42,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/splash',  // Tela inicial
+      initialRoute: '/splash',
       routes: {
         '/splash': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
@@ -41,7 +54,7 @@ class MainApp extends StatelessWidget {
         '/notificacoes': (context) => const NotificacoesScreen(),
         '/seguranca': (context) => const SegurancaScreen(),
         '/ajuda': (context) => const AjudaScreen(),
-        '/cart': (context) => const CartScreen(),  // Adicionando a rota do carrinho
+        '/cart': (context) => const CartScreen(),
       },
     );
   }
