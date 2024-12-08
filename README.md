@@ -23,13 +23,13 @@ O **TerraCota App** é um aplicativo desenvolvido em Flutter para uma loja de pr
 1. **Clone o repositório:**
    ```bash
    git clone https://github.com/gui-hmm/app_terracota.git
-Instale as dependências: Navegue até o diretório do projeto e instale as dependências:
+2. **Instale as dependências: Navegue até o diretório do projeto e instale as dependências:**
 
    ```bash
    cd terra-cota-app
    flutter pub get
    ```
-Execute o aplicativo: Conecte um dispositivo físico ou inicie um emulador e execute:
+3. **Execute o aplicativo: Conecte um dispositivo físico ou inicie um emulador e execute:**
 
    ```bash
    flutter run
