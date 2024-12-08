@@ -34,7 +34,7 @@ class CartScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.shopping_cart_outlined, size: 150),
+                  const Icon(Icons.shopping_cart_outlined, size: 150),
                   Container(
                     child: const Text(
                       'O carrinho está vazio.',
@@ -69,7 +69,7 @@ class CartScreen extends StatelessWidget {
                           'Total: R\$ ${cartProvider.totalPrice.toStringAsFixed(2)}',
                           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -78,24 +78,36 @@ class CartScreen extends StatelessWidget {
                               onPressed: () {
                                 cartProvider.clearCart(); // Limpar o carrinho
                               },
-                              child: Text('Esvaziar Carrinho'),
+                              child: Text(
+                                'Esvaziar Carrinho',
+                                style: TextStyle(
+                                  fontSize: 16, 
+                                  color: Colors.white
+                                ),
+                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Color(0xFF802600),
                                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                                textStyle: TextStyle(fontSize: 16, color: Colors.white), // Texto branco
+                                textStyle: TextStyle(fontSize: 16, color: Color(0xFFFFFFFF)), // Texto branco
                               ),
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             ElevatedButton(
                               onPressed: () {
-                                // Ação de checkout
+                                Navigator.pushReplacementNamed(context, '/finalizado');
                               },
-                              child: Text('Finalizar Compra'),
+                              child: Text(
+                                'Finalizar Compra', 
+                                style: TextStyle(
+                                  fontSize: 16, 
+                                  color: Colors.white
+                                ),
+                              ),
                               style: ElevatedButton.styleFrom(
+                                iconColor: Color(0xFFFFFFFF),
                                 backgroundColor: Color(0xFF802600),
                                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                                textStyle: TextStyle(fontSize: 16, color: Colors.white), // Texto branco
-                              ),
+                            ),
                             ),
                           ],
                         ),

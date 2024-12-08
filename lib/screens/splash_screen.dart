@@ -42,9 +42,9 @@ class _SplashScreenState extends State<SplashScreen> {
           // Imagem centralizada
           Center(
             child: Image.asset(
-              'assets/images/logomarca.png', // Caminho da imagem sobreposta
-              width: 200, // Ajuste o tamanho conforme necessário
-              height: 200,
+              'assets/images/logomarca.png', // Caminho da logomarca
+              width: 300, 
+              height: 300,
             ),
           ),
         ],

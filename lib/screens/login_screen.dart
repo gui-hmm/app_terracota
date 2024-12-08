@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';  // Importação para usar o Parse SDK
+import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+import 'package:provider/provider.dart'; // Certifique-se de importar o provider
+import 'package:terracota/utils/user_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -55,7 +57,18 @@ class _LoginScreenState extends State<LoginScreen> {
       final response = await user.login();
 
       if (response.success) {
-        // Se o login for bem-sucedido
+        // Acessar o usuário atual do Parse após o login
+        ParseUser currentUser = await ParseUser.currentUser() as ParseUser;
+        
+        // Obter dados do usuário do Parse (você pode acessar os campos que deseja, como 'name', 'email', etc)
+        String userName = currentUser.get<String>('nome') ?? 'Nome não disponível';  // Pega o nome do usuário
+        String userEmail = currentUser.get<String>('email') ?? 'Email não disponível'; // Pega o email do usuário
+
+        // Atualiza o UserProvider com os dados do usuário
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        userProvider.updateUser(userName, userEmail);
+
+        // Navegar para a tela principal
         Navigator.pushReplacementNamed(context, '/home');
         print('Login realizado com sucesso!');
       } else {
@@ -103,10 +116,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: 250,
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     // Descrição do Campo de Email
-                    Text(
+                    const Text(
                       'Informe seu endereço de e-mail',
                       style: TextStyle(
                         fontSize: 14,
@@ -114,17 +127,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: Colors.black54,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     // Campo de Email
                     _buildTextField(
                       controller: _emailController,
                       hintText: 'Email',
                       keyboardType: TextInputType.emailAddress,
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     // Descrição do Campo de Senha
-                    Text(
+                    const Text(
                       'Informe sua senha',
                       style: TextStyle(
                         fontSize: 14,
@@ -132,21 +145,27 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: Colors.black54,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     // Campo de Senha
                     _buildTextField(
                       controller: _senhaController,
                       hintText: 'Senha',
                       obscureText: true,
                     ),
-                    SizedBox(height: 30),
+                    const SizedBox(height: 30),
 
                     // Botão de login
                     ElevatedButton(
-                      onPressed: _isLoading ? null : _login,  // Chama a função de login
+                      onPressed: _isLoading ? null : _login,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),  // Chama a função de login
                       child: _isLoading
-                          ? CircularProgressIndicator(color: Colors.white)
-                          : Text(
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
                             'Entrar',
                             style: TextStyle(
                               color: Color(0xFF802600),
@@ -154,24 +173,18 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontSize: 16,
                             ),
                           ),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
                     ),
                     
                     // Opção de redirecionamento para a tela de cadastro
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Não tem conta? '),
+                        const Text('Não tem conta? '),
                         TextButton(
                           onPressed: () {
                             Navigator.pushReplacementNamed(context, '/cadastro');
                           },
-                          child: Text(
+                          child: const Text(
                             'Cadastre-se',
                             style: TextStyle(
                               color: Color(0xFF802600),
@@ -202,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey),
+        border: Border.all(color: Color(0xFF802600)),
       ),
       child: Semantics(
         label: hintText,

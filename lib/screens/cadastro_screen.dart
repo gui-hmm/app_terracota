@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:terracota/utils/user_provider.dart';
 
 class CadastroScreen extends StatefulWidget {
   const CadastroScreen({super.key});
@@ -62,7 +64,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
       _showSnackBar('As senhas não coincidem!');
       return false;
     }
-    
+
     if (_senhaController.text.length < 8) {
       _showSnackBar('A senha deve ter pelo menos 8 caracteres!');
       return false;
@@ -98,9 +100,24 @@ class _CadastroScreenState extends State<CadastroScreen> {
 
       // Salvar o objeto no Parse
       final response = await parseUser.signUp();
+      final user = ParseUser(_emailController.text, _senhaController.text, null);
 
       if (response.success) {
         // Cadastro bem-sucedido
+
+
+        // Acessar o usuário atual do Parse após o login
+        ParseUser currentUser = await ParseUser.currentUser() as ParseUser;
+        // Obter dados do usuário do Parse (você pode acessar os campos que deseja, como 'name', 'email', etc)
+        String userName = currentUser.get<String>('nome') ?? 'Nome não disponível';  // Pega o nome do usuário
+        String userEmail = currentUser.get<String>('email') ?? 'Email não disponível'; // Pega o email do usuário
+
+        // Atualiza o UserProvider com os dados do usuário
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        userProvider.updateUser(userName, userEmail);
+
+
+
         Navigator.pushReplacementNamed(context, '/home');
         print('Cadastro realizado com sucesso!');
       } else {
@@ -145,14 +162,14 @@ class _CadastroScreenState extends State<CadastroScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     // Logomarca
-                    Center(  
+                    Center(
                       child: Image.asset(
                         'assets/images/logomarca.png',
                         width: 250,
                         height: 250,
                       ),
                     ),
-                    const SizedBox(height: 20),  
+                    const SizedBox(height: 20),
 
                     // Descrição e Campo Nome
                     _buildLabelAndField(
@@ -276,7 +293,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
                             onPressed: () {
                               Navigator.pushReplacementNamed(context, '/login');
                             },
-                            child: 
+                            child:
                               const Text(
                                 'Login',
                                 style: TextStyle(color: Color(0xFF802600)),

@@ -5,12 +5,13 @@ import 'package:provider/provider.dart';
 import 'package:terracota/screens/ajuda_screen.dart';
 import 'package:terracota/screens/cadastro_screen.dart';
 import 'package:terracota/screens/cart_screen.dart';
+import 'package:terracota/screens/compraFinalizada_screen.dart';
 import 'package:terracota/screens/notificacoes_screen.dart';
 import 'package:terracota/screens/pagamentos_screen.dart';
 import 'package:terracota/screens/perfil_screen.dart';
 import 'package:terracota/screens/seguranca_screen.dart';
-import 'package:terracota/screens/settings_screen.dart';
 import 'package:terracota/utils/card_provider.dart';
+import 'package:terracota/utils/user_provider.dart';  
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
@@ -28,8 +29,11 @@ void main() async {
   );
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => CartProvider(),
+    MultiProvider(
+      providers: [ 
+        ChangeNotifierProvider(create: (context) => UserProvider()),  
+        ChangeNotifierProvider(create: (context) => CartProvider()), 
+      ],
       child: const MainApp(),
     ),
   );
@@ -48,13 +52,13 @@ class MainApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/cadastro': (context) => const CadastroScreen(),
         '/home': (context) => HomeScreen(),
-        '/settings': (context) => const SettingsScreen(),
         '/perfil': (context) => const PerfilScreen(),
         '/pagamentos': (context) => const PagamentosScreen(),
         '/notificacoes': (context) => const NotificacoesScreen(),
         '/seguranca': (context) => const SegurancaScreen(),
         '/ajuda': (context) => const AjudaScreen(),
         '/cart': (context) => const CartScreen(),
+        '/finalizado': (context) => const OrderConfirmationScreen(),
       },
     );
   }
