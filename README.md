@@ -27,11 +27,13 @@ Instale as dependências: Navegue até o diretório do projeto e instale as depe
 
    ```bash
    cd terra-cota-app
-   flutter pub get```
+   flutter pub get
+   ```
 Execute o aplicativo: Conecte um dispositivo físico ou inicie um emulador e execute:
 
    ```bash
-   flutter run```
+   flutter run
+   ```
 
 👥 Equipe de Desenvolvimento
 Este projeto foi desenvolvido por uma equipe dedicada e colaborativa:
